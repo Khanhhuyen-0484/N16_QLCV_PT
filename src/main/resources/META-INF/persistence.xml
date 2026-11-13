@@ -8,11 +8,12 @@
         <class>com.company.project.entity.Employee</class>
         <class>com.company.project.entity.Project</class>
         <class>com.company.project.entity.ProjectTask</class>
+        <class>com.company.project.entity.AccountStatusHistory</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:mariadb://localhost:3306/project_task_db?createDatabaseIfNotExist=true&amp;useUnicode=true&amp;characterEncoding=utf8"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.MariaDBDialect"/>
             <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.format_sql" value="true"/>
         </properties>

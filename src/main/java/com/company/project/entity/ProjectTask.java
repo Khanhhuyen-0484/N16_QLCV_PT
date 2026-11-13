@@ -10,14 +10,45 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Công việc trong dự án.
+ *  - n - 1 Project  (phía sở hữu của quan hệ Project.tasks)
+ *  - n - 1 Employee (người thực hiện - phía sở hữu của Employee.assignedTasks)
+ *  - n - 1 Employee (người giao việc)
+ */
 @Entity
 @Table(name = "project_tasks")
+@NamedQueries({
+        @NamedQuery(name = "ProjectTask.findAll",
+                query = "select t from ProjectTask t join fetch t.project join fetch t.assignee left join fetch t.assigner "
+                        + "order by t.project.id desc, t.id desc"),
+        @NamedQuery(name = "ProjectTask.findByAssignee",
+                query = "select t from ProjectTask t join fetch t.project join fetch t.assignee left join fetch t.assigner "
+                        + "where t.assignee.id = :employeeId order by t.deadline asc nulls last, t.id desc"),
+        @NamedQuery(name = "ProjectTask.findByManager",
+                query = "select t from ProjectTask t join fetch t.project p join fetch t.assignee left join fetch t.assigner "
+                        + "where p.manager.id = :managerId order by p.id desc, t.id desc"),
+        @NamedQuery(name = "ProjectTask.findOpenByAssignee",
+                query = "select t from ProjectTask t join fetch t.project where t.assignee.id = :employeeId "
+                        + "and t.status in :openStatuses"),
+        @NamedQuery(name = "ProjectTask.countByAssignee",
+                query = "select count(t) from ProjectTask t where t.assignee.id = :employeeId"),
+        @NamedQuery(name = "ProjectTask.countByAssigneeAndStatuses",
+                query = "select count(t) from ProjectTask t where t.assignee.id = :employeeId and t.status in :statuses"),
+        @NamedQuery(name = "ProjectTask.countOpenByAssigneeInProject",
+                query = "select count(t) from ProjectTask t where t.assignee.id = :employeeId "
+                        + "and t.project.id = :projectId and t.status in :openStatuses"),
+        @NamedQuery(name = "ProjectTask.clearAssigner",
+                query = "update ProjectTask t set t.assigner = null where t.assigner.id = :employeeId")
+})
 public class ProjectTask implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,11 +75,11 @@ public class ProjectTask implements Serializable {
     private int progress;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = 30, columnDefinition = "varchar(30)")
     private TaskStatus status = TaskStatus.TODO;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
+    @Column(length = 20, columnDefinition = "varchar(20)")
     private TaskPriority priority = TaskPriority.MEDIUM;
 
     @ManyToOne(fetch = FetchType.LAZY)

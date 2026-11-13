@@ -5,6 +5,7 @@ import com.company.project.entity.Employee;
 import com.company.project.entity.Role;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 public record EmployeeView(
         Long id,
@@ -13,7 +14,10 @@ public record EmployeeView(
         String email,
         String phone,
         Role role,
-        AccountStatus status
+        AccountStatus status,
+        String statusReason,
+        LocalDate statusFrom,
+        LocalDate statusUntil
 ) implements Serializable {
     public static EmployeeView from(Employee employee) {
         return new EmployeeView(
@@ -23,7 +27,10 @@ public record EmployeeView(
                 employee.getEmail(),
                 employee.getPhone(),
                 employee.getRole(),
-                employee.getStatus()
+                employee.getStatus(),
+                employee.getStatusReason(),
+                employee.getStatusFrom(),
+                employee.getStatusUntil()
         );
     }
 }

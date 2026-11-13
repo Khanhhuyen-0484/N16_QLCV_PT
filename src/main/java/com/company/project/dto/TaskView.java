@@ -22,6 +22,7 @@ public record TaskView(
         boolean overdue,
         Long projectId,
         String projectName,
+        boolean projectClosed,
         Long assigneeId,
         String assigneeName,
         Long assignerId,
@@ -30,8 +31,7 @@ public record TaskView(
     public static TaskView from(ProjectTask task) {
         boolean overdue = task.getDeadline() != null
                 && task.getDeadline().isBefore(LocalDate.now())
-                && task.getStatus() != TaskStatus.COMPLETED
-                && task.getStatus() != TaskStatus.DONE;
+                && task.getStatus().isOpen();
         return new TaskView(
                 task.getId(),
                 task.getTitle(),
@@ -47,6 +47,7 @@ public record TaskView(
                 overdue,
                 task.getProject().getId(),
                 task.getProject().getName(),
+                task.getProject().getStatus().isClosed(),
                 task.getAssignee().getId(),
                 task.getAssignee().getFullName(),
                 task.getAssigner() == null ? null : task.getAssigner().getId(),

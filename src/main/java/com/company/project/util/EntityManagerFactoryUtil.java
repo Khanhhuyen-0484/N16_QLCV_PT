@@ -7,18 +7,25 @@ import jakarta.persistence.Persistence;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class JpaUtil {
-    private static final EntityManagerFactory FACTORY = Persistence.createEntityManagerFactory("taskPU", properties());
+/**
+ * Khởi tạo EntityManagerFactory một lần (persistence-unit "taskPU") và cấp EntityManager cho từng yêu cầu.
+ * Thông tin kết nối có thể ghi đè bằng biến môi trường TASKFLOW_DB_URL / TASKFLOW_DB_USER / TASKFLOW_DB_PASSWORD.
+ */
+public final class EntityManagerFactoryUtil {
+    private static final EntityManagerFactory FACTORY =
+            Persistence.createEntityManagerFactory("taskPU", properties());
 
-    private JpaUtil() {
+    private EntityManagerFactoryUtil() {
     }
 
-    public static EntityManager em() {
+    public static EntityManager getEntityManager() {
         return FACTORY.createEntityManager();
     }
 
     public static void close() {
-        FACTORY.close();
+        if (FACTORY.isOpen()) {
+            FACTORY.close();
+        }
     }
 
     private static Map<String, String> properties() {
@@ -26,7 +33,7 @@ public final class JpaUtil {
         props.put("jakarta.persistence.jdbc.url", setting("TASKFLOW_DB_URL",
                 "jdbc:mariadb://localhost:3306/project_task_db?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8"));
         props.put("jakarta.persistence.jdbc.user", setting("TASKFLOW_DB_USER", "root"));
-        props.put("jakarta.persistence.jdbc.password", setting("TASKFLOW_DB_PASSWORD", ""));
+        props.put("jakarta.persistence.jdbc.password", setting("TASKFLOW_DB_PASSWORD", "root123"));
         return props;
     }
 
